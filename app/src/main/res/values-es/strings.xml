@@ -597,6 +597,9 @@ Por ejemplo, los KPM que previenen la modificación de particiones solo pueden u
     <string name="settings_home_layout_default">Lista (ListUI)</string>
     <string name="settings_home_layout_grid">Cuadrícula (GridUI)</string>
     <string name="settings_home_layout_focus">Enfoque (FocusUI)</string>
+    <string name="settings_home_layout_sign">SignUI</string>
+    <string name="settings_home_layout_circle">CircleUI</string>
+    <string name="settings_home_layout_dashboard_pro">DashboardUI</string>
     <string name="unofficial_version_title">Versión No Oficial</string>
     <string name="unofficial_version_message">Estás usando FolkPatch que no es una app oficial, ¡por favor descarga la app oficial!</string>
     <string name="go_to_github">Ir a Github</string>

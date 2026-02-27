@@ -601,6 +601,9 @@
     <string name="settings_home_layout_default">ListUI</string>
     <string name="settings_home_layout_grid">GridUI</string>
     <string name="settings_home_layout_focus">FocusUI</string>
+    <string name="settings_home_layout_sign">SignUI</string>
+    <string name="settings_home_layout_circle">CircleUI</string>
+    <string name="settings_home_layout_dashboard_pro">DashboardUI</string>
     <string name="unofficial_version_title">非官方版本</string>
     <string name="unofficial_version_message">你使用的 FolkPatch 並非官方正版，請下載正版 App 使用！</string>
     <string name="go_to_github">前往 Github</string>

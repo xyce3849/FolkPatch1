@@ -586,6 +586,9 @@ Pastikan aplikasi ditutup sepenuhnya dan dimulai ulang untuk menjalankan perinta
     <string name="settings_home_layout_default">ListUI</string>
     <string name="settings_home_layout_grid">GridUI</string>
     <string name="settings_home_layout_focus">FocusUI</string>
+    <string name="settings_home_layout_sign">SignUI</string>
+    <string name="settings_home_layout_circle">CircleUI</string>
+    <string name="settings_home_layout_dashboard_pro">DashboardUI</string>
     <string name="unofficial_version_title">Versi Tidak Resmi</string>
     <string name="unofficial_version_message">Anda menggunakan FolkPatch, yang bukan aplikasi resmi, harap unduh aplikasi resmi!</string>
     <string name="go_to_github">Buka Github</string>

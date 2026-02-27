@@ -600,6 +600,9 @@
     <string name="settings_home_layout_default">واجهة قائمة</string>
     <string name="settings_home_layout_grid">واجهة شبكة</string>
     <string name="settings_home_layout_focus">واجهة تركيز</string>
+    <string name="settings_home_layout_sign">واجهة إشارة</string>
+    <string name="settings_home_layout_circle">واجهة دائرية</string>
+    <string name="settings_home_layout_dashboard_pro">واجهة لوحة معلومات</string>
     <string name="unofficial_version_title">إصدار غير رسمي</string>
     <string name="unofficial_version_message">أنت تستخدم FolkPatch وهو ليس تطبيقًا رسميًا، يرجى تنزيل التطبيق الرسمي!</string>
     <string name="go_to_github">اذهب إلى Github</string>

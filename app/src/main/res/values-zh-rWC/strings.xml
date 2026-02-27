@@ -594,7 +594,10 @@
     <string name="settings_home_layout_default">ListUI</string>
     <string name="settings_home_layout_grid">GridUI</string>
     <string name="settings_home_layout_focus">FocusUI</string>
-    
+    <string name="settings_home_layout_sign">SignUI</string>
+    <string name="settings_home_layout_circle">CircleUI</string>
+    <string name="settings_home_layout_dashboard_pro">DashboardUI</string>
+
     <!-- Unofficial Version Strings -->
     <string name="unofficial_version_title">非官制版</string>
     <string name="unofficial_version_message">君所用之FolkPatch非官制所出，请下载官制正版应用！</string>

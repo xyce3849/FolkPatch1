@@ -1791,6 +1791,7 @@ private fun homeLayoutStyleToString(style: String): Int {
         "focus" -> R.string.settings_home_layout_focus
         "sign" -> R.string.settings_home_layout_sign
         "circle" -> R.string.settings_home_layout_circle
+        "dashboard_ui" -> R.string.settings_home_layout_dashboard_pro
         else -> R.string.settings_home_layout_default
     }
 }
@@ -1934,6 +1935,20 @@ fun HomeLayoutChooseDialog(showDialog: MutableState<Boolean>) {
                             },
                             modifier = Modifier.clickable {
                                 prefs.edit().putString("home_layout_style", "circle").apply()
+                                showDialog.value = false
+                            }
+                        )
+
+                        ListItem(
+                            headlineContent = { Text(stringResource(R.string.settings_home_layout_dashboard_pro)) },
+                            leadingContent = {
+                                RadioButton(
+                                    selected = currentStyle == "dashboard_ui",
+                                    onClick = null
+                                )
+                            },
+                            modifier = Modifier.clickable {
+                                prefs.edit().putString("home_layout_style", "dashboard_ui").apply()
                                 showDialog.value = false
                             }
                         )

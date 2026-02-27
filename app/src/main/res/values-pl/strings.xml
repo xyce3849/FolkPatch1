@@ -600,7 +600,10 @@ Upewnij się, że aplikacja jest całkowicie zamknięta i ponownie otwarta, aby 
     <string name="settings_home_layout_default">ListUI</string>
     <string name="settings_home_layout_grid">GridUI</string>
     <string name="settings_home_layout_focus">FocusUI</string>
-    
+    <string name="settings_home_layout_sign">SignUI</string>
+    <string name="settings_home_layout_circle">CircleUI</string>
+    <string name="settings_home_layout_dashboard_pro">DashboardUI</string>
+
     <!-- Unofficial Version Strings -->
     <string name="unofficial_version_title">Wersja nieoficjalna</string>
     <string name="unofficial_version_message">Używasz FolkPatch, który nie jest oficjalną aplikacją, pobierz oficjalną aplikację!</string>

@@ -594,6 +594,9 @@
     <string name="settings_home_layout_default">ListUI</string>
     <string name="settings_home_layout_grid">GridUI</string>
     <string name="settings_home_layout_focus">FocusUI</string>
+    <string name="settings_home_layout_sign">SignUI</string>
+    <string name="settings_home_layout_circle">CircleUI</string>
+    <string name="settings_home_layout_dashboard_pro">DashboardUI</string>
     <string name="unofficial_version_title">非官方版本喵！</string>
     <string name="unofficial_version_message">你用的FolkPatch管理器是第三方的喵！可能会坑你钱的哦！要下正版喵！</string>
     <string name="go_to_github">去Github喵！</string>

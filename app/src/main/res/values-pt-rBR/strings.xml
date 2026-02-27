@@ -595,6 +595,9 @@ Por favor, certifique-se de fechar completamente o app e reabri-lo para que os c
     <string name="settings_home_layout_default">Lista (ListUI)</string>
     <string name="settings_home_layout_grid">Grade (GridUI)</string>
     <string name="settings_home_layout_focus">Foco (FocusUI)</string>
+    <string name="settings_home_layout_sign">SignUI</string>
+    <string name="settings_home_layout_circle">CircleUI</string>
+    <string name="settings_home_layout_dashboard_pro">DashboardUI</string>
     <string name="unofficial_version_title">Versão Não Oficial</string>
     <string name="unofficial_version_message">Você está usando o FolkPatch que não é o app oficial, por favor baixe o app oficial!</string>
     <string name="go_to_github">Ir para Github</string>

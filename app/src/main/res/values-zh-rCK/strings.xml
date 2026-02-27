@@ -587,6 +587,7 @@
     <string name="settings_home_layout_focus">FocusUI</string>
     <string name="settings_home_layout_sign">SignUI</string>
     <string name="settings_home_layout_circle">CircleUI</string>
+    <string name="settings_home_layout_dashboard_pro">DashboardUI</string>
     <string name="unofficial_version_title">非官方版本</string>
     <string name="unofficial_version_message">您正在用的是第三方 FolkPatch 管理器，可能会出岔子。要吃正宗的，请去官方渠道下正版！</string>
     <string name="go_to_github">去 Github 瞧瞇瞇</string>

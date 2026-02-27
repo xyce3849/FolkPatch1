@@ -599,6 +599,7 @@ Komutların çalışması için uygulamanın tamamen kapatılıp yeniden açıld
     <string name="settings_home_layout_focus">FocusUI</string>
     <string name="settings_home_layout_sign">SignUI</string>
     <string name="settings_home_layout_circle">CircleUI</string>
+    <string name="settings_home_layout_dashboard_pro">DashboardUI</string>
     <string name="unofficial_version_title">Resmi Olmayan Sürüm</string>
     <string name="unofficial_version_message">Resmi olmayan bir FolkPatch sürümü kullanıyorsunuz, lütfen resmi uygulamayı indirin!</string>
     <string name="go_to_github">GitHub’a Git</string>
