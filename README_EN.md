@@ -92,4 +92,3 @@ This project is based on the following open source projects:
 
 ### FolkPatch Discussion & Communication
 - Telegram Channel: [@FolkPatch](https://t.me/FolkPatch)
-- QQ Group: 1074588103
