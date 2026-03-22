@@ -31,7 +31,6 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
-import com.ramcosta.composedestinations.generated.destinations.ThemeStoreScreenDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
 import me.bmax.apatch.R
@@ -237,7 +236,7 @@ fun MyThemesScreen(
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(
-                    onClick = { navigator.navigate(ThemeStoreScreenDestination) }
+                    onClick = { navigator.popBackStack() }
                 ) {
                     Text(stringResource(R.string.my_themes_empty_action))
                 }
