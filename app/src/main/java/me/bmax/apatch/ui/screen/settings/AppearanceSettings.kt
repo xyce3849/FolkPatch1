@@ -273,6 +273,7 @@ fun AppearanceSettings(
     val navSchemeLabel = when (currentNavMode) {
         "rail" -> stringResource(R.string.settings_nav_mode_rail)
         "bottom" -> stringResource(R.string.settings_nav_mode_bottom)
+        "floating" -> stringResource(R.string.settings_nav_mode_floating)
         else -> stringResource(R.string.settings_nav_mode_auto)
     }
     var showNavSchemeDialog by remember { mutableStateOf(false) }
@@ -2311,6 +2312,7 @@ fun NavModeChooseDialog(
     onDismiss: () -> Unit
 ) {
     val modes = listOf(
+        "floating" to R.string.settings_nav_mode_floating,
         "auto" to R.string.settings_nav_mode_auto,
         "bottom" to R.string.settings_nav_mode_bottom,
         "rail" to R.string.settings_nav_mode_rail

@@ -21,9 +21,10 @@
     <string name="settings_nav_scheme">Gezinme Şeması</string>
     <string name="settings_nav_mode">Gezinme Çubuğu Modu</string>
     <string name="settings_nav_mode_summary">Gezinme çubuğunun nasıl görüntüleneceğini seçin</string>
-    <string name="settings_nav_mode_auto">Otomatik (ekran genişliğine göre)</string>
+    <string name="settings_nav_mode_auto">Otomatik Geleneksel</string>
     <string name="settings_nav_mode_bottom">Her Zaman Alt Çubuk</string>
     <string name="settings_nav_mode_rail">Her Zaman Yan Çubuk</string>
+    <string name="settings_nav_mode_floating">Kayan Alt Çubuk</string>
     <string name="settings_show_apm">APM Göster</string>
     <string name="settings_show_kpm">KPM Göster</string>
     <string name="settings_show_superuser">SuperUser Göster</string>

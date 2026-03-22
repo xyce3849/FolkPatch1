@@ -14,9 +14,10 @@
     <string name="settings_nav_scheme">ナビゲーションスキーム</string>
     <string name="settings_nav_mode">ナビゲーションバーモード</string>
     <string name="settings_nav_mode_summary">ナビゲーションバーの表示方法を選択します。</string>
-    <string name="settings_nav_mode_auto">自動 (画面の幅をベース)</string>
+    <string name="settings_nav_mode_auto">自動伝統</string>
     <string name="settings_nav_mode_bottom">常にボトムバー</string>
     <string name="settings_nav_mode_rail">常にサイドレール</string>
+    <string name="settings_nav_mode_floating">フローティングボトムバー</string>
     <string name="settings_show_apm">APM を表示</string>
     <string name="settings_show_kpm">KPM を表示</string>
     <string name="settings_show_superuser">スーパーユーザーを表示</string>

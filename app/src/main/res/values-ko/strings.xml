@@ -21,9 +21,10 @@
     <string name="settings_nav_scheme">내비게이션 구성</string>
     <string name="settings_nav_mode">내비게이션 바 모드</string>
     <string name="settings_nav_mode_summary">내비게이션 바 표시 방식을 선택하세요.</string>
-    <string name="settings_nav_mode_auto">자동 (화면 너비 기준)</string>
+    <string name="settings_nav_mode_auto">자동 전통 바</string>
     <string name="settings_nav_mode_bottom">항상 하단 바</string>
     <string name="settings_nav_mode_rail">항상 측면 레일</string>
+    <string name="settings_nav_mode_floating">플로팅 바텀 바</string>
     <string name="settings_show_apm">시스템 모듈 표시</string>
     <string name="settings_show_kpm">커널 모듈 표시</string>
     <string name="settings_show_superuser">Superuser 표시</string>

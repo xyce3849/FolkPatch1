@@ -9,11 +9,14 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
@@ -22,7 +25,16 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
@@ -36,6 +48,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.DisposableEffect
@@ -45,15 +58,26 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.compositionLocalOf
 import android.content.SharedPreferences
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.Velocity
+import kotlin.math.abs
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.ramcosta.composedestinations.generated.destinations.InstallScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.ApmBulkInstallScreenDestination
@@ -98,6 +122,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.background
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.window.DialogProperties
 import me.bmax.apatch.R
 import androidx.compose.runtime.LaunchedEffect
@@ -120,6 +145,51 @@ import android.widget.Toast
 
 import me.bmax.apatch.ui.screen.settings.ThemeImportDialog
 import me.bmax.apatch.util.BiometricUtils
+
+data class ScrollState(
+    val isScrollingDown: MutableState<Boolean>,
+    val scrollOffset: MutableState<Float>,
+    val previousScrollOffset: MutableState<Float>
+)
+
+val LocalScrollState = compositionLocalOf<ScrollState?> { null }
+
+@Composable
+fun rememberScrollConnection(
+    isScrollingDown: MutableState<Boolean>,
+    scrollOffset: MutableState<Float>,
+    previousScrollOffset: MutableState<Float>,
+    threshold: Float = 50f
+): NestedScrollConnection {
+    return remember {
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                val delta = available.y
+
+                // Update scroll offset
+                val newOffset = scrollOffset.value + delta
+                scrollOffset.value = newOffset
+
+                // Calculate the scroll delta from previous offset
+                val scrollDelta = previousScrollOffset.value - newOffset
+
+                // Only update direction if scroll delta exceeds threshold
+                if (abs(scrollDelta) > threshold) {
+                    isScrollingDown.value = scrollDelta > 0
+                    previousScrollOffset.value = newOffset
+                }
+
+                return Offset.Zero
+            }
+
+            override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
+                // Reset offset tracking after fling
+                previousScrollOffset.value = scrollOffset.value
+                return super.onPostFling(consumed, available)
+            }
+        }
+    }
+}
 
 class MainActivity : AppCompatActivity() {
 
@@ -498,12 +568,12 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 // 读取导航栏模式设置
-                var navMode by remember { mutableStateOf(prefs.getString("nav_mode", "auto") ?: "auto") }
+                var navMode by remember { mutableStateOf(prefs.getString("nav_mode", "floating") ?: "floating") }
                 
                 DisposableEffect(Unit) {
                     val navModeListener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPrefs, key ->
                         if (key == "nav_mode") {
-                            navMode = sharedPrefs.getString("nav_mode", "auto") ?: "auto"
+                            navMode = sharedPrefs.getString("nav_mode", "floating") ?: "floating"
                         }
                     }
                     prefs.registerOnSharedPreferenceChangeListener(navModeListener)
@@ -512,11 +582,31 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
 
+                // Scroll state for bottom bar visibility
+                val isScrollingDown = remember { mutableStateOf(false) }
+                val scrollOffset = remember { mutableStateOf(0f) }
+                val previousScrollOffset = remember { mutableStateOf(0f) }
+
+                // Remember the last valid navbar selection (persists across navbar hide/show)
+                val lastValidNavbarSelection = remember { mutableStateOf(0) }
+
+                val currentBackStackEntry by navController.currentBackStackEntryAsState()
+                val currentRoute = currentBackStackEntry?.destination?.route
+
+                // Show bottom bar logic: hide when scrolling down in floating mode
+                val isFloatingMode = navMode == "floating"
+                val showBottomBar = if (isFloatingMode) {
+                    !isScrollingDown.value
+                } else {
+                    true
+                }
+
                 // 使用 BoxWithConstraints 检测屏幕宽度
                 BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
                     val useNavigationRail = when (navMode) {
                         "rail" -> true
                         "bottom" -> false
+                        "floating" -> false
                         else -> maxWidth >= 600.dp && maxWidth > maxHeight // auto
                     }
                     
@@ -541,19 +631,54 @@ class MainActivity : AppCompatActivity() {
                         }
                     } else {
                         // 竖向布局：NavigationBar 在底部
-                        Scaffold(
-                            bottomBar = { BottomBar(navController) }
-                        ) { _ ->
-                            CompositionLocalProvider(
-                                LocalSnackbarHost provides snackBarHostState,
-                            ) {
-                                DestinationsNavHost(
-                                    modifier = Modifier.padding(bottom = 80.dp),
-                                    navGraph = NavGraphs.root,
-                                    navController = navController,
-                                    engine = rememberNavHostEngine(navHostContentAlignment = Alignment.TopCenter),
-                                    defaultTransitions = createNavTransitions(folkXEngineEnabled, folkXAnimationType, folkXAnimationSpeed, bottomBarRoutes, useNavigationRail = false)
-                                )
+                        if (isFloatingMode) {
+                            // Floating mode: use overlay approach with AnimatedVisibility
+                            Box(modifier = Modifier.fillMaxSize()) {
+                                CompositionLocalProvider(
+                                    LocalSnackbarHost provides snackBarHostState,
+                                    LocalScrollState provides ScrollState(
+                                        isScrollingDown = isScrollingDown,
+                                        scrollOffset = scrollOffset,
+                                        previousScrollOffset = previousScrollOffset
+                                    )
+                                ) {
+                                    DestinationsNavHost(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .nestedScroll(rememberScrollConnection(isScrollingDown, scrollOffset, previousScrollOffset)),
+                                        navGraph = NavGraphs.root,
+                                        navController = navController,
+                                        engine = rememberNavHostEngine(navHostContentAlignment = Alignment.TopCenter),
+                                        defaultTransitions = createNavTransitions(folkXEngineEnabled, folkXAnimationType, folkXAnimationSpeed, bottomBarRoutes, useNavigationRail = false)
+                                    )
+                                }
+
+                                // Floating Bottom Bar as overlay
+                                AnimatedVisibility(
+                                    visible = showBottomBar,
+                                    modifier = Modifier.align(Alignment.BottomCenter),
+                                    enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
+                                    exit = slideOutVertically(targetOffsetY = { it }) + fadeOut()
+                                ) {
+                                    BottomBar(navController, isFloating = true, lastValidSelection = lastValidNavbarSelection)
+                                }
+                            }
+                        } else {
+                            // Non-floating mode: use traditional Scaffold
+                            Scaffold(
+                                bottomBar = { BottomBar(navController, isFloating = false, lastValidSelection = lastValidNavbarSelection) }
+                            ) { _ ->
+                                CompositionLocalProvider(
+                                    LocalSnackbarHost provides snackBarHostState,
+                                ) {
+                                    DestinationsNavHost(
+                                        modifier = Modifier.padding(bottom = 80.dp),
+                                        navGraph = NavGraphs.root,
+                                        navController = navController,
+                                        engine = rememberNavHostEngine(navHostContentAlignment = Alignment.TopCenter),
+                                        defaultTransitions = createNavTransitions(folkXEngineEnabled, folkXAnimationType, folkXAnimationSpeed, bottomBarRoutes, useNavigationRail = false)
+                                    )
+                                }
                             }
                         }
                     }
@@ -629,7 +754,11 @@ fun UnofficialVersionDialog() {
 }
 
 @Composable
-private fun BottomBar(navController: NavHostController) {
+private fun BottomBar(
+    navController: NavHostController,
+    isFloating: Boolean = false,
+    lastValidSelection: MutableState<Int> = mutableStateOf(0)
+) {
     val context = LocalContext.current
     if (!APApplication.isSignatureValid) {
         UnofficialVersionDialog()
@@ -676,24 +805,112 @@ private fun BottomBar(navController: NavHostController) {
         val kPatchReady = state != APApplication.State.UNKNOWN_STATE
         val aPatchReady = state == APApplication.State.ANDROIDPATCH_INSTALLED
 
-        NavigationBar(
-            tonalElevation = if (BackgroundConfig.isCustomBackgroundEnabled) 0.dp else 8.dp,
-            containerColor = if (BackgroundConfig.isCustomBackgroundEnabled) {
-                MaterialTheme.colorScheme.surface.copy(alpha = BackgroundConfig.customBackgroundOpacity)
-            } else {
-                NavigationBarDefaults.containerColor
+        // Determine visible destinations
+        val visibleDestinations = BottomBarDestination.entries.filter { destination ->
+            when {
+                destination == BottomBarDestination.AModule && !showNavApm -> false
+                destination == BottomBarDestination.KModule && !showNavKpm -> false
+                destination == BottomBarDestination.SuperUser && !showNavSuperUser -> false
+                (destination.kPatchRequired && !kPatchReady) || (destination.aPatchRequired && !aPatchReady) -> false
+                else -> true
             }
-        ) {
-            BottomBarDestination.entries.forEach { destination ->
-                val show = when {
-                    destination == BottomBarDestination.AModule && !showNavApm -> false
-                    destination == BottomBarDestination.KModule && !showNavKpm -> false
-                    destination == BottomBarDestination.SuperUser && !showNavSuperUser -> false
-                    (destination.kPatchRequired && !kPatchReady) || (destination.aPatchRequired && !aPatchReady) -> false
-                    else -> true
+        }
+
+        val currentBackStackEntry by navController.currentBackStackEntryAsState()
+        val currentRoute = currentBackStackEntry?.destination?.route
+
+        val isOnBackStack = visibleDestinations.map { destination ->
+            navController.isRouteOnBackStackAsState(destination.direction).value
+        }
+
+        // Prefer an exact current-route match; fall back to whichever tab is on the back stack.
+        val selectedIndex = run {
+            val exactMatch = visibleDestinations.indexOfFirst { it.direction.route == currentRoute }
+            if (exactMatch != -1) exactMatch
+            else isOnBackStack.indexOfLast { it }
+        }
+
+        // Persist the selection so the indicator doesn't jump while the navbar is animating out/in.
+        if (selectedIndex != -1) {
+            lastValidSelection.value = selectedIndex
+        }
+
+        // Use current selection if on navbar, otherwise use last valid selection
+        val effectiveSelectedIndex = if (selectedIndex != -1) selectedIndex else lastValidSelection.value
+
+        // Animate the indicator position with jelly/spring effect
+        val animatedSelectedIndex by animateFloatAsState(
+            targetValue = effectiveSelectedIndex.toFloat(),
+            animationSpec = spring(
+                dampingRatio = Spring.DampingRatioMediumBouncy,
+                stiffness = Spring.StiffnessLow
+            ),
+            label = "selectedIndex"
+        )
+
+        val containerColor = if (BackgroundConfig.isCustomBackgroundEnabled) {
+            MaterialTheme.colorScheme.surface.copy(alpha = BackgroundConfig.customBackgroundOpacity)
+        } else {
+            NavigationBarDefaults.containerColor
+        }
+
+        if (isFloating) {
+            // Floating mode: use Surface with shadow and rounded corners
+            // Responsive padding based on screen width
+            BoxWithConstraints(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        bottom = WindowInsets.navigationBars
+                            .asPaddingValues()
+                            .calculateBottomPadding()
+                    )
+            ) {
+                val screenWidth = maxWidth
+                val horizontalScreenPadding = when {
+                    screenWidth > 600.dp -> 32.dp // Tablet/Large screen
+                    screenWidth > 400.dp -> 24.dp // Normal phone
+                    else -> 16.dp // Small phone
                 }
 
-                if (show) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = horizontalScreenPadding, vertical = 14.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    val isCustomBg = BackgroundConfig.isCustomBackgroundEnabled
+                    Surface(
+                        modifier = Modifier.wrapContentWidth(),
+                        shape = MaterialTheme.shapes.large,
+                        color = containerColor,
+                        tonalElevation = if (isCustomBg) 0.dp else 3.dp,
+                        shadowElevation = if (isCustomBg) 0.dp else 8.dp
+                    ) {
+                        BottomBarContent(
+                            visibleDestinations = visibleDestinations,
+                            effectiveSelectedIndex = effectiveSelectedIndex,
+                            animatedSelectedIndex = animatedSelectedIndex,
+                            superuserCount = superuserCount,
+                            apmModuleCount = apmModuleCount,
+                            kernelModuleCount = kernelModuleCount,
+                            enableSuperUserBadge = enableSuperUserBadge,
+                            enableApmBadge = enableApmBadge,
+                            enableKernelBadge = enableKernelBadge,
+                            currentRoute = currentRoute,
+                            navController = navController,
+                            context = context
+                        )
+                    }
+                }
+            }
+        } else {
+            // Non-floating mode: use standard NavigationBar
+            NavigationBar(
+                tonalElevation = if (BackgroundConfig.isCustomBackgroundEnabled) 0.dp else 8.dp,
+                containerColor = containerColor
+            ) {
+                visibleDestinations.forEach { destination ->
                     key(destination) {
                         val isCurrentDestOnBackStack by navController.isRouteOnBackStackAsState(destination.direction)
 
@@ -751,6 +968,141 @@ private fun BottomBar(navController: NavHostController) {
                             },
                             alwaysShowLabel = false
                         )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun BottomBarContent(
+    visibleDestinations: List<BottomBarDestination>,
+    effectiveSelectedIndex: Int,
+    animatedSelectedIndex: Float,
+    superuserCount: Int,
+    apmModuleCount: Int,
+    kernelModuleCount: Int,
+    enableSuperUserBadge: Boolean,
+    enableApmBadge: Boolean,
+    enableKernelBadge: Boolean,
+    currentRoute: String?,
+    navController: NavHostController,
+    context: android.content.Context
+) {
+    val navigator = navController.rememberDestinationsNavigator()
+    val itemSize = 56.dp
+    val itemSpacing = 4.dp
+    val containerPadding = 7.dp
+
+    // Calculate exact width based on items
+    val navBarWidth = (itemSize * visibleDestinations.size) +
+            (itemSpacing * (visibleDestinations.size - 1)) +
+            (containerPadding * 2)
+
+    Box(
+        modifier = Modifier
+            .width(navBarWidth)
+            .height(72.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = containerPadding)
+        ) {
+            // Animated sliding indicator
+            if (visibleDestinations.isNotEmpty()) {
+                val density = LocalDensity.current
+                val itemSizePx = with(density) { itemSize.toPx() }
+                val itemSpacingPx = with(density) { itemSpacing.toPx() }
+
+                // Calculate offset: each item position = (itemSize + spacing) * index
+                val indicatorOffset = (itemSizePx + itemSpacingPx) * animatedSelectedIndex
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .padding(vertical = 8.dp)
+                        .offset {
+                            IntOffset(
+                                x = indicatorOffset.toInt(),
+                                y = 0
+                            )
+                        }
+                        .width(itemSize),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(itemSize)
+                            .background(
+                                color = MaterialTheme.colorScheme.secondaryContainer,
+                                shape = MaterialTheme.shapes.large
+                            )
+                    )
+                }
+            }
+
+            // Navigation items
+            Row(
+                modifier = Modifier.fillMaxSize(),
+                horizontalArrangement = Arrangement.spacedBy(itemSpacing),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                visibleDestinations.forEachIndexed { index, destination ->
+                    val isSelected = index == effectiveSelectedIndex
+
+                    Box(
+                        modifier = Modifier
+                            .size(itemSize)
+                            .clip(MaterialTheme.shapes.large)
+                            .clickable {
+                                // If already on this destination, do nothing
+                                if (destination.direction.route == currentRoute) return@clickable
+
+                                if (me.bmax.apatch.ui.theme.SoundEffectConfig.scope == me.bmax.apatch.ui.theme.SoundEffectConfig.SCOPE_BOTTOM_BAR) {
+                                    me.bmax.apatch.util.SoundEffectManager.play(context)
+                                }
+                                if (me.bmax.apatch.ui.theme.VibrationConfig.scope == me.bmax.apatch.ui.theme.VibrationConfig.SCOPE_BOTTOM_BAR) {
+                                    me.bmax.apatch.util.VibrationManager.vibrate(context)
+                                }
+
+                                navigator.navigate(destination.direction) {
+                                    popUpTo(NavGraphs.root.startRoute) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        val badgeContent = when {
+                            destination == BottomBarDestination.SuperUser && enableSuperUserBadge -> superuserCount
+                            destination == BottomBarDestination.AModule && enableApmBadge -> apmModuleCount
+                            destination == BottomBarDestination.KModule && enableKernelBadge -> kernelModuleCount
+                            else -> 0
+                        }
+
+                        BadgedBox(
+                            badge = {
+                                if (badgeContent > 0) {
+                                    Badge(containerColor = MaterialTheme.colorScheme.secondary) {
+                                        Text(text = badgeContent.toString())
+                                    }
+                                }
+                            }
+                        ) {
+                            Icon(
+                                if (isSelected) destination.iconSelected else destination.iconNotSelected,
+                                stringResource(destination.label),
+                                tint = if (isSelected) {
+                                    MaterialTheme.colorScheme.primary
+                                } else {
+                                    MaterialTheme.colorScheme.onSurfaceVariant
+                                }
+                            )
+                        }
                     }
                 }
             }

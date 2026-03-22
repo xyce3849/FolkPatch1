@@ -21,9 +21,10 @@
     <string name="settings_nav_scheme">菜单编排方案</string>
     <string name="settings_nav_mode">菜单展示模式</string>
     <string name="settings_nav_mode_summary">挑喜欢的菜单样式</string>
-    <string name="settings_nav_mode_auto">自动 (按餐桌大小)</string>
+    <string name="settings_nav_mode_auto">自动传统</string>
     <string name="settings_nav_mode_bottom">老在下面</string>
     <string name="settings_nav_mode_rail">老在左边</string>
+    <string name="settings_nav_mode_floating">飘在下边</string>
     <string name="settings_show_apm">摆出来招牌菜</string>
     <string name="settings_show_kpm">摆出来特酱料</string>
     <string name="settings_show_superuser">摆出来首席大厨</string>
