@@ -97,10 +97,11 @@ pub fn on_post_data_fs(superkey: Option<String>) -> Result<()> {
     args = vec![
         "-s",
         "9",
-        "120s",
+        "45s",
         "logcat",
         "-b",
         "main,system,crash",
+        "DrmLibFs:S",
         "-f",
         &logcat_path,
         "logcatcher-bootlog:S",
