@@ -442,7 +442,7 @@
     <string name="settings_hide_service">FolkPatch 숨김</string>
     <string name="settings_hide_service_summary">부트로더 잠금 해제 상태를 어느 정도 숨깁니다.</string>
     <!-- Umount Service -->
-    <string name="settings_umount_service">Zig Umount</string>
+    <string name="settings_umount_service">Umount Service</string>
     <string name="settings_umount_service_summary">부팅 시 자동으로 마운트 해제할 마운트 지점을 구성합니다.</string>
     <string name="umount_config_title">Umount 구성</string>
     <string name="umount_config_enabled">Umount 활성화</string>

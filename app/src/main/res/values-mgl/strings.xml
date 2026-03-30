@@ -872,7 +872,7 @@
     <string name="search_scripts">搜索魔法卷轴...</string>
 
     <!-- Umount Service -->
-    <string name="settings_umount_service">Zig Umount</string>
+    <string name="settings_umount_service">Umount Service</string>
     <string name="settings_umount_service_summary">配置仪式开始时自动解除的魔法连接点</string>
     <string name="umount_config_title">Umount 魔法阵设定</string>
     <string name="umount_config_enabled">启用 Umount</string>

@@ -886,7 +886,7 @@
     <string name="search_scripts">Поиск скриптов...</string>
 
     <!-- Umount Service -->
-    <string name="settings_umount_service">Zig Umount</string>
+    <string name="settings_umount_service">Umount Service</string>
     <string name="settings_umount_service_summary">Настройка точек монтирования для автоматического отключения при загрузке</string>
     <string name="umount_config_title">Настройка Umount</string>
     <string name="umount_config_enabled">Включить Umount</string>

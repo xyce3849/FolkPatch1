@@ -887,7 +887,7 @@ Por favor, certifique-se de fechar completamente o app e reabri-lo para que os c
     <string name="search_scripts">Buscar scripts...</string>
 
     <!-- Umount Service -->
-    <string name="settings_umount_service">Zig Umount</string>
+    <string name="settings_umount_service">Umount Service</string>
     <string name="settings_umount_service_summary">Configurar pontos de montagem para desmontar automaticamente na inicialização</string>
     <string name="umount_config_title">Configuração do Umount</string>
     <string name="umount_config_enabled">Ativar Umount</string>
