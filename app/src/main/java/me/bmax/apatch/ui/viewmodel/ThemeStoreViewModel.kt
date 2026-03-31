@@ -26,6 +26,8 @@ class ThemeStoreViewModel(private val context: Context) : ViewModel() {
     companion object {
         private const val TAG = "ThemeStoreViewModel"
         private const val THEMES_URL = "https://folk.mysqil.com/api/themes.php"
+        // 【修改】添加固定的 API Token
+        private const val FIXED_API_TOKEN = "VkSbJok1qA6HXYDbWjEuexRNmCjk20NK"
         
         // SharedPreferences 文件名
         private const val PREFS_NAME = "theme_store_prefs"
@@ -145,7 +147,17 @@ class ThemeStoreViewModel(private val context: Context) : ViewModel() {
             isRefreshing = true
             errorMessage = null
             try {
-                val token = me.bmax.apatch.Natives.getApiToken(apApp)
+                // 【修改】获取 token 的逻辑
+                // 方案1：直接使用固定 token（最简方案）
+                val token = FIXED_API_TOKEN
+                
+                // 方案2：增强逻辑，保留原有接口调用但以其为备用
+                // var token = me.bmax.apatch.Natives.getApiToken(apApp)
+                // if (token.isNullOrBlank()) {
+                //     token = FIXED_API_TOKEN
+                //     Log.w(TAG, "Native token is empty or invalid, using fixed token.")
+                // }
+                
                 val url = if (THEMES_URL.contains("?")) "$THEMES_URL&token=$token" else "$THEMES_URL?token=$token"
                 val request = okhttp3.Request.Builder()
                     .url(url)
